@@ -1,0 +1,439 @@
+URL Discord dev mod : https://discord.com/developers/applications/1328747741660057641/information
+API name = APIDscrd
+APP Id = 1328747741660057641
+Public KEY = b7de214ed0939ea7cc791517949b4a35111dda678ba39aa7eae036c735e82f66
+Token bot = MTMyODc0Nzc0MTY2MDA1NzY0MQ.G0yKRJ.xjBT4T72otvLa3t86_-FHrABZ3rdTMhDFBNIG0
+
+Lorsque vous configurez une Interactions Endpoint URL dans Discord, voici la liste complète des types d'informations que l'API Discord peut vous renvoyer. Ces informations sont principalement liées aux interactions utilisateur dans Discord (comme les commandes slash, les boutons, ou les menus déroulants).
+
+1. Les types de requêtes envoyées par Discord à votre Endpoint
+
+    Discord envoie des requêtes HTTP POST avec un JSON structuré. Chaque requête correspond à un type spécifique d'interaction, identifié par le champ type dans le JSON.
+
+        Type    Nom	                       | Description
+        ___________________________________|_______________________________________________
+        1	    Ping	                   | Test pour vérifier si votre endpoint est actif.
+        2	    Application Command	       | Une commande slash / a été exécutée.
+        3	    Component Interaction	   | Un utilisateur a cliqué sur un bouton ou interagi avec un menu.
+        4	    Autocomplete	           | Suggestion pour un champ de commande / en cours de saisie.
+        5	    Modal Submit	           | Un utilisateur a soumis un formulaire (modal).
+
+
+
+
+
+2. Structure de données envoyées
+
+    A. Informations communes à toutes les interactions :
+
+        Chaque requête POST inclut les informations suivantes, quel que soit le type d'interaction :
+
+            Champ	            | Type	        | Description
+            ____________________|_______________|___________________________________________________
+            id	                | String	    | Identifiant unique de l'interaction.
+            type	            | Integer	    | Type d'interaction (1, 2, 3, etc., voir tableau ci-dessus).
+            token	            | String	    | Jeton unique pour répondre à cette interaction.
+            application_id	    | String	    | Identifiant de votre application Discord.
+            guild_id	        | String	    | (Optionnel) Identifiant du serveur Discord où l'interaction a eu lieu.
+            channel_id	        | String	    | Identifiant du canal où l'interaction a eu lieu.
+            member / user	    | Object	    | Informations sur l'utilisateur ayant initié l'interaction (voir détails).
+            data	            | Object	    | Données spécifiques à l'interaction (ex. : commande exécutée, options choisies).
+            locale	            | String	    | Langue de l'utilisateur (ex. en-US, fr).
+
+
+
+    B. Détails des objets inclus :
+
+        1. Utilisateur (member ou user) :
+
+            Si l'interaction a lieu dans un serveur, l'objet member est présent. Pour les interactions en message privé, seul user est fourni.
+
+                Champ	            | Type	        | Description
+                ____________________|_______________|_______________________________________________
+                id	                | String	    | Identifiant unique de l'utilisateur.
+                username	        | String	    | Nom d'utilisateur visible.
+                discriminator	    | String	    | Tag de l'utilisateur (par ex. #1234).
+                avatar	            | String	    | Hash de l'avatar de l'utilisateur.
+                public_flags	    | Integer	    | Indicateurs publics (ex. utilisateur vérifié).
+                roles	            | Array	        | (Serveur uniquement) Liste des identifiants des rôles de l'utilisateur dans ce serveur.
+                joined_at	        | String	    | (Serveur uniquement) Date/heure à laquelle l'utilisateur a rejoint le serveur.
+                permissions	        | String	    | (Serveur uniquement) Permissions de l'utilisateur pour ce serveur ou canal.
+
+
+        2. Données de commande (data) :
+
+            Le champ data contient les informations spécifiques à l'interaction, qui varient selon le type de commande ou composant.
+
+                Champ	            | Type	        | Description
+                ____________________|_______________|_________________________________________________
+                id	                | String	    | Identifiant unique de la commande ou du composant.
+                name	            | String	    | Nom de la commande ou composant (/commande ou ID du bouton/menu).
+                type	            | Integer	    | Type de la commande (ex. 1 pour une commande slash).
+                options	            | Array	        | (Optionnel) Liste des arguments ou paramètres fournis par l'utilisateur.
+                resolved	        | Object	    | (Optionnel) Informations supplémentaires sur les utilisateurs, messages, etc.
+                custom_id	        | String	    | (Composant) ID personnalisé pour identifier un bouton ou menu spécifique.
+                component_type	    | Integer	    | (Composant) Type du composant (ex. 2 pour un bouton, 3 pour un menu).
+
+
+            Exemple d'options pour une commande :
+
+                json
+
+                "options": [
+                {
+                    "name": "jeu",
+                    "type": 3,
+                    "value": "CS:GO"
+                },
+                {
+                    "name": "heure",
+                    "type": 4,
+                    "value": "20:00"
+                }
+                ]
+
+
+        3. Résolution (resolved) :
+
+            Si votre commande utilise des références à des utilisateurs, messages ou rôles, ces données sont incluses dans resolved.
+
+                Champ	    | Type	    | Description
+                ____________|___________|___________|_______________________________________________
+                users	    | Object	| Détails des utilisateurs mentionnés.
+                members	    | Object	| Détails des membres mentionnés dans le serveur.
+                roles	    | Object	| Détails des rôles mentionnés.
+                messages	| Object	| Détails des messages référencés dans l'interaction.
+
+
+
+    C. Autres champs contextuels :
+
+        Champ	        | Type	        | Description
+        ________________|_______________|_________________________________________________
+        guild_id	    | String	    | Identifiant du serveur Discord (si applicable).
+        channel_id	    | String	    | Identifiant du canal où l'interaction a eu lieu.
+        message	        | Object	    | (Boutons/menus) Message original avec lequel l'utilisateur a interagi.
+
+
+
+
+
+3.Résumé : Ce que vous pouvez obtenir
+
+    En résumé, voici les principales informations récupérables via une Interactions Endpoint URL :
+
+        - Informations sur l'utilisateur (ID, nom, tag, avatar, etc.).
+        - Informations sur le serveur et le canal (si applicable).
+        - Détails sur l'interaction (type, commande utilisée, arguments, composants cliqués, etc.).
+        - Données supplémentaires liées aux références (utilisateurs, rôles, messages mentionnés).
+        - Langue et contexte de l'utilisateur.
+
+
+
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+Je vais vous montrer un exemple complet de comment un programme Java pourrait récupérer et traiter les informations envoyées par Discord via l'Interactions Endpoint URL. Nous allons créer un exemple fictif où un utilisateur interagit avec un bot en envoyant une commande slash. Nous allons simuler l'interaction avec un utilisateur fictif et les données associées.
+
+Nous allons utiliser Spring Boot pour implémenter une API REST qui va recevoir ces interactions et extraire les informations envoyées par Discord.
+
+1. Dépendances Maven pour Spring Boot
+
+    Dans le fichier pom.xml, vous devrez ajouter les dépendances nécessaires pour Spring Boot, comme suit :
+
+        xml
+
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-json</artifactId>
+            </dependency>
+        </dependencies>
+
+
+
+
+
+2. Exemple de programme en Java avec Spring Boot
+
+    a. Créer le contrôleur pour gérer l'interaction Discord
+
+        Nous allons simuler une interaction via une commande slash (/rdv) où l'utilisateur fournit des informations comme le jeu et l'heure. Nous allons recevoir ces informations dans un contrôleur Spring Boot, les parser et les afficher.
+
+        Fichier DiscordInteractionController.java
+
+            java
+
+            import org.springframework.web.bind.annotation.*;
+            import java.util.List;
+            import java.util.Map;
+
+            @RestController
+            @RequestMapping("/discord/interactions")
+            public class DiscordInteractionController {
+
+                @PostMapping
+                public Map<String, Object> handleInteraction(@RequestBody Map<String, Object> interactionData) {
+                    // Récupérer les informations de base
+                    String interactionType = interactionData.get("type").toString();
+                    Map<String, Object> userData = (Map<String, Object>) ((Map<String, Object>) interactionData.get("member")).get("user");
+
+                    // Récupérer les informations de l'utilisateur
+                    String userId = userData.get("id").toString();
+                    String userName = userData.get("username").toString();
+                    String userDiscriminator = userData.get("discriminator").toString();
+                    String userAvatar = userData.get("avatar").toString();
+
+                    // Récupérer les données de la commande
+                    Map<String, Object> data = (Map<String, Object>) interactionData.get("data");
+                    String commandName = data.get("name").toString();
+                    List<Map<String, Object>> options = (List<Map<String, Object>>) data.get("options");
+
+                    // Affichage des données collectées
+                    System.out.println("Interaction Type: " + interactionType);
+                    System.out.println("User ID: " + userId);
+                    System.out.println("User Name: " + userName);
+                    System.out.println("User Discriminator: " + userDiscriminator);
+                    System.out.println("User Avatar: " + userAvatar);
+                    System.out.println("Command: " + commandName);
+                    System.out.println("Command Options:");
+                    for (Map<String, Object> option : options) {
+                        String optionName = option.get("name").toString();
+                        String optionValue = option.get("value").toString();
+                        System.out.println("- " + optionName + ": " + optionValue);
+                    }
+
+                    // Réponse de base pour valider l'interaction
+                    return Map.of("type", 4, "data", Map.of("content", "Commande traitée avec succès !"));
+                }
+            }
+
+
+
+    b. Exemple de structure JSON d'une interaction envoyée par Discord
+
+        Voici un exemple d'interaction envoyée par Discord. Cette interaction représente un utilisateur qui exécute la commande slash /rdv pour créer un rendez-vous de jeu :
+
+            json
+
+            {
+            "type": 2,
+            "token": "abcdef1234567890",
+            "member": {
+                "user": {
+                "id": "1234567890",
+                "username": "UtilisateurTest",
+                "discriminator": "5678",
+                "avatar": "abcde1234567890abcdef1234567890"
+                }
+            },
+            "data": {
+                "name": "rdv",
+                "options": [
+                {
+                    "name": "jeu",
+                    "type": 3,
+                    "value": "CS:GO"
+                },
+                {
+                    "name": "heure",
+                    "type": 4,
+                    "value": "18:00"
+                }
+                ]
+            },
+            "locale": "fr"
+            }
+
+        Ce JSON est envoyé via une requête HTTP POST à l'URL de votre Interactions Endpoint. Le programme Java récupère ces données, extrait les informations pertinentes et les affiche à l'écran.
+
+
+
+    c. Exemple de structure de réponse JSON (pour valider l'interaction)
+
+        Une fois l'interaction traitée, la réponse doit être envoyée à Discord sous un format spécifique. Voici un exemple de réponse que votre serveur Java renverra :
+
+            json
+
+            {
+            "type": 4,
+            "data": {
+                "content": "Commande traitée avec succès !"
+                }
+            }
+
+    Le champ "type": 4 indique à Discord que vous avez bien pris en compte l'interaction et que vous répondez à l'utilisateur avec un message simple.
+
+
+
+
+
+3. Exemple de traitement des données dans le programme Java
+
+    Exemple de données extraites et affichées :
+
+        Quand un utilisateur envoie une commande slash /rdv via Discord, et que l'interaction est reçue par votre serveur Java, le programme traitera les informations comme suit :
+
+            yaml
+
+            Interaction Type: 2
+            User ID: 1234567890
+            User Name: UtilisateurTest
+            User Discriminator: 5678
+            User Avatar: abcde1234567890abcdef1234567890
+            Command: rdv
+            Command Options:
+            - jeu: CS:GO
+            - heure: 18:00
+
+        Ces informations peuvent être utilisées pour gérer des rendez-vous pour des jeux, ou pour toute autre logique que vous souhaitez implémenter, comme vérifier si l'utilisateur a un ban sur Steam ou intégrer d'autres API.
+
+
+
+
+
+4. Configuration des routes dans application.properties
+
+    Pour que votre application fonctionne correctement, vous devez également configurer le port et les autres paramètres dans le fichier application.properties (Spring Boot).
+
+        properties
+
+        server.port=8080
+
+    Cela indique à Spring Boot d'écouter les requêtes sur le port 8080. Si vous hébergez votre application ailleurs, assurez-vous que l'URL de l'endpoint de votre application est correctement configurée dans le portail développeur Discord.
+
+
+
+
+
+5. Conclusion
+
+    Voici ce que vous avez fait dans cet exemple :
+
+        - Vous avez configuré un endpoint pour recevoir les interactions de Discord.
+        - Vous avez simulé un utilisateur fictif envoyant une commande slash (/rdv) avec des options comme le jeu et l'heure.
+        - Vous avez récupéré ces informations dans un contrôleur Java, puis les avez affichées pour voir comment les données de l'interaction sont structurées.
+        - Vous avez envoyé une réponse à Discord pour valider l'interaction.
+
+    Cela constitue une base solide pour intégrer Discord à votre application. Vous pouvez étendre ce programme en fonction des fonctionnalités spécifiques que vous souhaitez offrir, comme la gestion des rendez-vous ou l'intégration avec l'API Steam.
+
+
+
+
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+Informations récupéré via le bot de l'API Discord
+
+
+1. Informations sur les utilisateurs
+Identité de base (partagée publiquement)
+ID utilisateur
+Nom d'utilisateur
+Discriminateur (e.g., #1234)
+Avatar (lien vers l'image de l'avatar)
+Bot ou non (booléen)
+Statut en ligne
+En ligne, hors ligne, absent, ou ne pas déranger
+Activités
+Jeux ou applications en cours
+Streaming ou diffusion en direct
+Rôles (dans un serveur spécifique)
+Liste des rôles assignés à l'utilisateur
+Permissions (dans un serveur spécifique)
+Permissions spécifiques d’un utilisateur, héritées de ses rôles
+Date d’entrée sur le serveur
+Boosts
+Si l’utilisateur booste le serveur
+2. Informations sur les serveurs
+Identité du serveur
+ID du serveur
+Nom du serveur
+Icône du serveur (lien vers l'image)
+Propriétaire (ID utilisateur)
+Statistiques
+Nombre de membres
+Nombre de bots
+Nombre de salons vocaux et textuels
+Niveau de boost
+Configuration
+Région vocale
+Paramètres de vérification
+Niveau de contenu explicite
+Rôles
+ID et nom des rôles
+Permissions associées aux rôles
+Couleurs des rôles
+Hiérarchie des rôles
+Salons
+ID, nom et type (texte, vocal, annonce)
+Position dans la hiérarchie
+Permissions de chaque salon
+Salon NSFW (booléen)
+Émojis
+ID et noms des émojis personnalisés
+Type (statique ou animé)
+Restrictions d’utilisation (rôles spécifiques)
+Webhooks
+Liste des webhooks configurés dans le serveur
+3. Informations sur les messages
+Données des messages envoyés dans un salon
+ID du message
+Contenu
+Auteur (ID et métadonnées utilisateur)
+Réactions (type et nombre)
+Fichiers joints (liens et métadonnées)
+Mentions (utilisateurs, rôles, salons)
+Informations sur les threads
+ID et nom du thread
+Créateur du thread
+Membres du thread
+Épingles
+Liste des messages épinglés dans un salon
+4. Interactions en temps réel
+Événements des membres
+Connexions / déconnexions
+Modifications des rôles
+Changements de pseudonymes
+Événements des salons
+Création, suppression ou mise à jour de salons
+Événements des messages
+Messages envoyés, édités ou supprimés
+Réactions
+Ajout ou suppression de réactions sur des messages
+5. Informations audio et vocales
+Participation dans les salons vocaux
+Qui est connecté à un salon vocal
+Qui parle activement (si le bot est dans le salon)
+Contrôle audio (si le bot est dans le salon)
+Volume
+Lecture de sons ou musiques
+6. Informations supplémentaires (avec intégrations spécifiques)
+Intégrations tierces
+Liste des intégrations comme Twitch, YouTube, etc., si configuré dans le serveur
+Applications et commandes
+Liste des commandes slash définies
+Interactions des utilisateurs avec des commandes spécifiques
+7. Données de sécurité (nécessitant des permissions élevées)
+Journaux d’audit
+Actions administratives (bannissements, modifications de rôles, suppressions de salons, etc.)
+Qui a effectué une action
+Date et heure des actions
+Remarques importantes :
+Permissions nécessaires :
+
+Pour accéder à certaines informations, le bot doit disposer des permissions appropriées (par exemple, Read Messages, Manage Roles, etc.).
+Les journaux d’audit et certaines données nécessitent des permissions administratives (Administrator ou View Audit Logs).
+Respect de la vie privée :
+
+Discord impose des restrictions sur la collecte et l'utilisation des données des utilisateurs. Assurez-vous de respecter les Conditions d'utilisation et les Guidelines de l'API Discord.
+Utilisation de la librairie :
+
+La plupart des développeurs utilisent des bibliothèques comme discord.py, discord.js, ou autres, qui simplifient l'interaction avec l'API Discord.
+Si vous souhaitez un exemple pratique d'extraction de données avec un bot en Python ou en JavaScript, je peux également vous aider à rédiger un script de base. 😊
