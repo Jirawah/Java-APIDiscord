@@ -13,7 +13,7 @@ import javax.security.auth.login.LoginException;
 public class MyBot {
 
     public static void main(String[] args) throws LoginException {
-        String botToken = "votre_token";
+        String botToken = "my_token";
 
         // Construction du bot avec les permissions nécessaires
         JDABuilder.createDefault(botToken)
