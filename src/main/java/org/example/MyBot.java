@@ -13,10 +13,9 @@ import javax.security.auth.login.LoginException;
 public class MyBot {
 
     public static void main(String[] args) throws LoginException {
-        // Remplacez par votre token Discord
-        String botToken = "votre_token"; // Remplacez avec votre propre token
+        String botToken = "votre_token";
 
-        // Construire le bot avec les permissions nécessaires
+        // Construction du bot avec les permissions nécessaires
         JDABuilder.createDefault(botToken)
                 .enableIntents(GatewayIntent.GUILD_VOICE_STATES) // Permet d'interagir avec les salons vocaux
                 .addEventListeners(new BotVoiceManager()) // Ajouter un gestionnaire pour la connexion vocale
@@ -54,13 +53,11 @@ class BotVoiceManager extends ListenerAdapter {
     public void onVoiceStateUpdate(VoiceStateUpdateEvent event) {
         // Vérifier si le bot est toujours dans le salon vocal
         if (event.getJDA().getSelfUser().getId().equals(event.getMember().getId())) {
-            // Si le bot rejoint un autre salon ou quitte, on gère la connexion
             if (event.getChannelJoined() != null && !event.getChannelJoined().equals(channel)) {
                 System.out.println("Le bot a rejoint un nouveau salon vocal : " + event.getChannelJoined().getName());
                 AudioManager audioManager = event.getGuild().getAudioManager();
                 audioManager.openAudioConnection(event.getChannelJoined());
             } else if (event.getChannelLeft() != null && event.getChannelLeft().equals(channel)) {
-                // Si le bot quitte le salon vocal, il revient
                 System.out.println("Le bot a quitté le salon vocal, il va revenir.");
                 AudioManager audioManager = channel.getGuild().getAudioManager();
                 audioManager.openAudioConnection(channel);
